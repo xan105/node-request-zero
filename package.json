@@ -1,5 +1,5 @@
 {
-  "name": "request-download",
+  "name": "@xan105/request",
   "description": "Simple dependency-free promise based HTTP request client with file download progress.",
   "version": "0.1.0",
   "main": "request.js",
