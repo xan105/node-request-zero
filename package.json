@@ -1,0 +1,25 @@
+{
+  "name": "request-download",
+  "description": "Simple dependency-free promise based HTTP request client with file download progress.",
+  "version": "0.1.0",
+  "main": "request.js",
+  "author": "Anthony Beaumont",
+  "license": "MIT",
+  "scripts": {
+    "start": "node request.js",
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xan105/node-request-download.git"
+  },
+  "keywords": [
+    "request", "client", "http", "https", "download", "progress", "url", "promise"
+  ],
+  "author": "Anthony Beaumont",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/xan105/node-request-download/issues"
+  },
+  "homepage": "https://github.com/xan105/node-request-download#readme"
+}
