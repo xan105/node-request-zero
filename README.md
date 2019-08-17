@@ -68,8 +68,8 @@ All methods accept an optional object which you can set with any of following :
 |option|default|description|
 -------|-------|------------
 |timeout|3000 (ms) | Time before aborting request|
-|maxRedirect| 3 | How many redirections to follow before aborting |
-|maxRetry| 0 *(request)* / 3 *(download)* | How many retries on error before aborting |
+|maxRedirect| 3 | How many redirections to follow before aborting; Use 0 to not follow redirects |
+|maxRetry| 0 *(request)* / 3 *(download)* | How many retries on error before aborting; Use 0 to not retry at all |
 |headers| {'User-Agent': 'Chrome/'} | Headers of your request
 
 There are more options but they are specific to certains methods, check the API section.
@@ -118,6 +118,7 @@ There are multiple points of failure, the API tries to return an error object wi
     ```
 + `request.post(url string, [payload] string|Buffer, [option] object)`<br/>
     Make a POST request to url and write/push payload.<br/>
+    NB: On HTTP 301, 302, 303 the method will be [changed to GET](https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections)
     Returns as above.
 + `request.upload(url string, content string|Buffer, [option] object)`<br/>
     Make a POST request with content within a multipart/form-data payload.<br/>
