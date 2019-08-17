@@ -54,7 +54,7 @@ const request = require('request-zero');
 function printProgress(percent, speed, file){
     process.stdout.clearLine();
     process.stdout.cursorTo(0);
-    process.stdout.write(`${percent}% @ ${speed} kb/s [${dest}]`);
+    process.stdout.write(`${percent}% @ ${speed} kb/s [${file}]`);
 }
 
 ```
@@ -81,11 +81,13 @@ All *request.**x*** methods are short-hand of a wrapper to the Node.js's HTTP(S)
 All *request.download.**x*** methods are short-hand of a wrapper to the Node.js's HTTP(S) API interfaces *http(s).get()* which pipes the data to a *WriteStream*.<br/>
 
 There are multiple points of failure, the API tries to return an error object with the same properties as much as possible.
+```js
 {
  code : ..., // HTTP Response code | Node.js error code
  message: ..., // HTTP Response message | Node.js error message
  headers: ... // HTTP Response headers when available and relevant
 }
+```
 
 + `request.getJson(url **string**, [option] object)`<br/>
     Make a GET request to url with 'Accept' header set to 'application/json, application/json;indent=2' if unset in option and parse the result.<br/>
