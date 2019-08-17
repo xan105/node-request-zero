@@ -102,7 +102,7 @@ There are multiple points of failure, the API tries to return an error object wi
       code: ..., // HTTP Response code
       message: ..., //HTTP Response message
       headers: ... //HTTP Response headers
-     }
+    }
      ```
 + `request.get(url string, [option] object)` <br/>
     Make a GET request to url.<br/>
