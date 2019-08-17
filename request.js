@@ -7,7 +7,7 @@ const download = require('./download.js');
 
 const request = module.exports = (href, payload, option = {}) => {
   
-  if (typeof payload === 'object') {
+  if (typeof(payload) === 'object' && typeof(payload) !== 'string' && !Buffer.isBuffer(payload)) {
 		option = payload
 		payload = null;
 	}
@@ -15,7 +15,7 @@ const request = module.exports = (href, payload, option = {}) => {
   let options = {
     method: option.method || "GET",
     timeout : option.timeout || 3000,
-    maxRedirection: (option.maxRedirection || option.maxRedirection == 0) ? option.maxRedirection : 3,
+    maxRedirect: (option.maxRedirect || option.maxRedirect == 0) ? option.maxRedirect : 3,
     maxRetry: (option.maxRetry || option.maxRetry == 0) ? option.maxRetry : 0,
     headers : {
       'User-Agent': 'Chrome/'
@@ -28,10 +28,10 @@ const request = module.exports = (href, payload, option = {}) => {
 
   return new Promise((resolve, reject) => {
   
-    if (!href) return reject( {error:"BAD URL", message:`URL is ${typeof(url)}`} );
+    if (!href) return reject( {code:"BAD URL", message:`URL is ${typeof(url)}`} );
   
     let url = urlParser.parse(href);
-    if(!url.hostname || !url.protocol) return reject( {error:"BAD URL", message:`URL is malformed`} );
+    if(!url.hostname || !url.protocol) return reject( {code:"BAD URL", message:`URL is malformed`} );
     url.headers = options.headers;
     url.method = options.method;
   
@@ -40,7 +40,7 @@ const request = module.exports = (href, payload, option = {}) => {
 
       if(url.method === "HEAD") {
         resolve({
-          status: res.statusCode,
+          code: res.statusCode,
           message: res.statusMessage,
           headers: res.headers
         });
@@ -53,15 +53,15 @@ const request = module.exports = (href, payload, option = {}) => {
           }).on('end', () => { 
               if (res.complete) {
                 resolve({
-                    status: res.statusCode,
+                    code: res.statusCode,
                     message: res.statusMessage,
                     headers: res.headers,
-                    data: data.join('')
+                    body: data.join('')
                 });
               }else{
                   option.maxRetry = options.maxRetry - 1;
                   if (option.maxRetry < 0) {
-                    reject( {error: 'EINTERRUPTED', message: 'The connection was terminated while the message was still being sent'} );
+                    reject( {code: 'EINTERRUPTED', message: 'The connection was terminated while the message was still being sent'} );
                   } else {
                     return resolve(request(href, option));
                   } 
@@ -70,7 +70,7 @@ const request = module.exports = (href, payload, option = {}) => {
               option.maxRetry = options.maxRetry - 1;
               if (option.maxRetry < 0) {
                 reject({
-                  error: err.code, 
+                  code: err.code, 
                   message: err.message,
                   headers: res.headers
                 });
@@ -83,11 +83,11 @@ const request = module.exports = (href, payload, option = {}) => {
       }
       else if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
         
-        if (options.maxRedirection < 0) {
-          return reject( {error:"EREDIRECTMAX", message:"Maximum redirection reached"} );
+        if (options.maxRedirect < 0) {
+          return reject( {code:"EREDIRECTMAX", message:"Maximum redirection reached"} );
         } else {
           let redirect = (urlParser.parse(res.headers.location).hostname) ? res.headers.location : `${url.protocol}//${url.hostname}/${res.headers.location}`;
-          option.maxRedirection = options.maxRedirection - 1;
+          option.maxRedirect = options.maxRedirect - 1;
           return resolve(request(redirect, option));
         }
         
@@ -97,7 +97,7 @@ const request = module.exports = (href, payload, option = {}) => {
          option.maxRetry = options.maxRetry - 1;
          if (option.maxRetry < 0) {
              reject({
-              error: res.statusCode, 
+              code: res.statusCode, 
               message: res.statusMessage,
               headers: res.headers
              });
@@ -114,7 +114,7 @@ const request = module.exports = (href, payload, option = {}) => {
             option.maxRetry = options.maxRetry - 1;
             if (option.maxRetry < 0) {
                reject({
-                error: err.code, 
+                code: err.code, 
                 message: err.message
                });
                req.abort();    
@@ -125,7 +125,7 @@ const request = module.exports = (href, payload, option = {}) => {
 
     if (url.method === "POST") {  
         if (!payload) {
-          reject( {error: "ERR_INVALID_ARG_TYPE", message: `payload is ${typeof(options.payload)}`} );
+          reject( {code: "ERR_INVALID_ARG_TYPE", message: `payload is ${typeof(options.payload)}`} );
           req.abort();
         } else {
           req.write(payload); 
@@ -159,7 +159,7 @@ module.exports.getJson = async (url, option = {} ) => {
   option.method = "GET";
 
   try {
-     let json = (await request(url, option)).data;
+     let json = (await request(url, option)).body;
      return JSON.parse(json);
   }catch(err){
      throw err;
@@ -167,19 +167,14 @@ module.exports.getJson = async (url, option = {} ) => {
 
 }
 
-module.exports.upload = async (url, content, filename, option = {} ) => {
+module.exports.upload = async (url, content, option = {} ) => {
   
   try {
 
-    if(!content) throw {error: "ERR_INVALID_ARG_TYPE", message: `content is ${typeof(content)}`};
-    
-    if (typeof filename === 'object') {
-      option = filename
-      filename = Date.now();
-	  }
+    if(!content) throw {code: "ERR_INVALID_ARG_TYPE", message: `content is ${typeof(content)}`};
 
     const crlf = "\r\n";
-    let headers = 'Content-Disposition: form-data; name="file"; filename="'+filename+'"' + crlf;
+    let headers = `Content-Disposition: form-data; name="${option.fieldname || 'file'}"; filename="${option.filename || Date.now()}"` + crlf;
     let boundary = `--${Math.random().toString(16)}`;
     let delimeter = {
        start: `${crlf}--${boundary}`,

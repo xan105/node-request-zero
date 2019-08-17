@@ -17,7 +17,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
 	
 	let options = {
     timeout : option.timeout || 3000,
-    maxRedirection: (option.maxRedirection || option.maxRedirection == 0) ? option.maxRedirection : 3,
+    maxRedirect: (option.maxRedirect || option.maxRedirect == 0) ? option.maxRedirect : 3,
     maxRetry: (option.maxRetry || option.maxRetry == 0) ? option.maxRetry : 3,
     headers : {
       'User-Agent': 'Chrome/'
@@ -31,11 +31,11 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
 
   return new Promise((resolve, reject) => {
   
-    if (!href) return reject( {error:"BAD URL", message:`URL is ${typeof(url)}`} );
-    if (!destDir || typeof(destDir) !== 'string') return reject( {error:"ERR_INVALID_ARG_TYPE", message:`destDir is ${typeof(destDir)}`} )
+    if (!href) return reject( {code:"BAD URL", message:`URL is ${typeof(url)}`} );
+    if (!destDir || typeof(destDir) !== 'string') return reject( {code:"ERR_INVALID_ARG_TYPE", message:`destDir is ${typeof(destDir)}`} )
   
     let url = urlParser.parse(href);
-    if(!url.hostname || !url.protocol) return reject( {error:"BAD URL", message:`URL is malformed`} );
+    if(!url.hostname || !url.protocol) return reject( {code:"BAD URL", message:`URL is malformed`} );
     url.headers = options.headers;
     
     let destPath = '';
@@ -63,7 +63,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
         
           fs.mkdir(destDir, { recursive: true }, (err) => {
              if (err) { 
-               reject( {error: err.code, message: err.message} );
+               reject( {code: err.code, message: err.message} );
                req.abort(); 
              }
              else 
@@ -82,7 +82,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                   let file = fs.createWriteStream(destPath);
 
                   file.on('error', (err) => {
-                    reject( {error: err.code, message: err.message} );
+                    reject( {code: err.code, message: err.message} );
                     file.end();
                     fs.unlink(destPath, () => {
                        req.abort();
@@ -114,7 +114,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                         if (res.complete) {
                             callbackProgress(100, 0, destFile);
                             resolve({
-                                status: res.statusCode,
+                                code: res.statusCode,
                                 message: res.statusMessage,
                                 headers: res.headers,
                                 path: destPath
@@ -122,7 +122,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                         } else {
                             option.maxRetry = options.maxRetry - 1;
                             if (option.maxRetry < 0) {
-                                reject( {error: 'EINTERRUPTED', message: 'The connection was terminated while the message was still being sent'} );
+                                reject( {code: 'EINTERRUPTED', message: 'The connection was terminated while the message was still being sent'} );
                                 fs.unlink(destPath, () => {});
                             } else {
                                 return resolve(download(href, destDir, option, callbackProgress));
@@ -135,7 +135,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                         option.maxRetry = options.maxRetry - 1;
                         if (option.maxRetry < 0) {
                           reject({
-                              error: err.code, 
+                              code: err.code, 
                               message: err.message,
                               headers: res.headers
                           });
@@ -152,9 +152,9 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
          
         } else if (res.statusCode >= 300 && res.statusCode < 400 && res.headers.location) {
 
-              option.maxRedirection = options.maxRedirection - 1;
-              if (option.maxRedirection < 0) {
-                return reject( {error:"EREDIRECTMAX", message:"Maximum redirection reached"} );
+              option.maxRedirect = options.maxRedirect - 1;
+              if (option.maxRedirect < 0) {
+                return reject( {code:"EREDIRECTMAX", message:"Maximum redirection reached"} );
               } else {
                 let redirect = (urlParser.parse(res.headers.location).hostname) ? res.headers.location : `${url.protocol}//${url.hostname}/${res.headers.location}`;
                 return resolve(download(redirect, destDir, option, callbackProgress));
@@ -165,7 +165,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
              option.maxRetry = options.maxRetry - 1;
              if (option.maxRetry < 0) {
                  reject({
-                    error: res.statusCode, 
+                    code: res.statusCode, 
                     message: res.statusMessage,
                     headers: res.headers
                  });
@@ -184,7 +184,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
              option.maxRetry = options.maxRetry - 1;
              if (option.maxRetry < 0) {
                  reject({
-                    error: res.statusCode, 
+                    code: res.statusCode, 
                     message: res.statusMessage
                  });
                  fs.unlink(destPath, () => {
@@ -198,21 +198,32 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
   });            
 }
 
-module.exports.all = async (listURL, destDir, callbackProgress = ()=>{} ) => {
+module.exports.all = async (listURL, destDir, option, callbackProgress = ()=>{} ) => {
 
   if (!Array.isArray(listURL)) { throw "download file list must be an array !"; }
+  
+  if (typeof option === 'function') {
+		callbackProgress = option
+		option = null;
+	}
   
   let count = 0; 
   let slice_size = (100/listURL.length);
   let list = [];
 
+  let _option = JSON.parse(JSON.stringify(option));
+
   for (let file in listURL) { 
     let progressPercent = Math.floor((count/listURL.length)*100);
     try {
 
-      let destination = (Array.isArray(destDir)) ? destDir[file] : destDir; 
+      let destination = (Array.isArray(destDir)) ? destDir[file] : destDir;
+
+      if (option.filename) {
+        _option.filename = (Array.isArray(option.filename)) ? _option.filename[file] : null;
+      } 
       
-      list.push(await download(listURL[file], destination, function(itemPercent, speed, destFile){  
+      list.push(await download(listURL[file], destination, _option, function(itemPercent, speed, destFile){  
             let percent = progressPercent + Math.floor((slice_size/100)*itemPercent);
             callbackProgress(percent, speed, destFile);
       })); 
