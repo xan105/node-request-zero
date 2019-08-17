@@ -1,5 +1,5 @@
-Request-zero is based around the Node.js's HTTP(S) API interfaces.
-It retries on error, follows redirects and provides progress when downloading (pipe stream) out of the box.
+Request-zero is based around the Node.js's HTTP(S) API interfaces.<br />
+It retries on error, follows redirects and provides progress when downloading (pipe stream) out of the box.<br />
 It uses promise and has no dependency.
 
 Common use cases:
@@ -58,3 +58,26 @@ function printProgress(percent, speed, dest){
 }
 
 ```
+There are more options and methods short-hand, see below.
+
+Common API Options
+==================
+
+All methods accept an optional object which you can set with any of following :
+
+|option|default|description|
+-------|-------|------------
+|timeout|3000 (ms) | Time before aborting request|
+|maxRedirection| 3 | How many redirections to follow before aborting |
+|maxRetry| 0 *(request)* / 3 *(download)* | How many retries on error before aborting |
+|method| GET | Http method : GET POST HEAD etc |
+|headers| {'User-Agent': 'Chrome/'} | Headers of your request
+
+There are more options but they are specific to certains methods, check the API section.
+
+API
+===
+
+All *request* methods are short-hand of a wrapper to the Node.js's HTTP(S) API interfaces *http(s).request()*<br/>
+All *request.download* methods are short-hand of a wrapper to the Node.js's HTTP(S) API interfaces *http(s).get()* which pipes the data to a *WriteStream*.<br/>
+
