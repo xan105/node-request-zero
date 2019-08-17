@@ -1,6 +1,6 @@
 Request-zero is based around the Node.js's HTTP(S) API interfaces.<br />
-It retries on error, follows redirects and provides progress when downloading (pipe stream) out of the box.<br />
-It uses promise and has no dependency.
+It retries on error, follows redirects and provides progress when downloading (pipe to stream) out of the box.<br />
+It uses promises and has no dependencies.
 
 Common use cases:
 =================
@@ -30,7 +30,7 @@ const request = require('request-zero');
      let res = await request.head(`http://ipv4.download.thinkbroadband.com/1GB.zip`);
      console.log(res); //=> { status: 200, message: 'OK', headers: {...} }
       
-     //Simple download to disk (pipe stream)
+     //Simple download to disk (pipe to stream)
      await request.download("http://ipv4.download.thinkbroadband.com/1GB.zip", "D:/Downloads", printProgress)
      
      //Download from github ... aws redirection ... content disposition ... but custom filename
@@ -78,6 +78,27 @@ There are more options but they are specific to certains methods, check the API 
 API
 ===
 
-All *request* methods are short-hand of a wrapper to the Node.js's HTTP(S) API interfaces *http(s).request()*<br/>
-All *request.download* methods are short-hand of a wrapper to the Node.js's HTTP(S) API interfaces *http(s).get()* which pipes the data to a *WriteStream*.<br/>
+All *request.**x*** methods are short-hand of a wrapper to the Node.js's HTTP(S) API interfaces *http(s).request()*<br/>
+All *request.download.**x*** methods are short-hand of a wrapper to the Node.js's HTTP(S) API interfaces *http(s).get()* which pipes the data to a *WriteStream*.<br/>
 
+### Short-hand method:
+
++ `request.get(url, [option])` <br/>
+    makeme
++ `request.getJson(url, [option])`<br/>
+    makeme
++ `request.head(url, [option])`<br/>
+    makeme
++ `request.post(url, [payload], [option])`<br/>
+    makeme
++ `request.upload(url, content, [option])`<br/>
+    makeme
++ `request.download.all(listURL, destDir, [option], [callbackProgress])`<br/>
+    makeme
+
+### Node.js's HTTP(S) API wrapper:
+
++ `request(url, [payload], [option])`<br/>
+    makeme
++ `request.download(url, destDir, [option], [callbackProgress])`<br/>
+    makeme
