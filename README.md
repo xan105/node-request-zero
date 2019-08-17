@@ -122,7 +122,7 @@ There are multiple points of failure, the API tries to return an error object wi
     ```
 + `request.post(url string, [payload] string|Buffer, [option] object)`<br/>
     Make a POST request to url and write/push payload.<br/>
-    NB: On HTTP 301, 302, 303 the method will be [changed to GET](https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections)<br/>
+    NB: On HTTP 301, 302, 303 redirection the method will be [changed to GET](https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections)<br/>
     Returns as above.
 + `request.upload(url string, content string|Buffer, [option] object)`<br/>
     Make a POST request with content within a multipart/form-data payload.<br/>
