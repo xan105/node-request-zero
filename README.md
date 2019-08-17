@@ -98,7 +98,7 @@ There are multiple points of failure, the API tries to return an error object wi
     Returns the JSON.parsed data.
 + `request.head(url string, [option] object)`<br/>
     Make a HEAD request to url. Returns response headers no matter the HTTP response code.<br/> 
-    NB: Doesn't follow redirection by design. So maxRedirection is useless here.<br/> 
+    NB: Doesn't follow redirection by design. So maxRedirect is useless here.<br/> 
     If you need to follow the redirection you can use the headers['location'] from the response and make a new HEAD request.<br/>
     Returns an object:
     ```js
