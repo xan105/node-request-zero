@@ -43,7 +43,7 @@ const request = require('request-zero');
     
     //Upload a single file multipart/form-data
     let res = await request.upload("http://127.0.0.1/upload/test/", "Hello world", {name: "file", filename: "hello world.txt"});
-    console.log(res); //=> { status: 200, message: 'OK', headers: {...}, data: 'ok' }
+    console.log(res); //=> { status: 200, message: 'OK', headers: {...}, body: 'ok' }
     
     //Use of custom retry on error and redirection to follow
     await request("https://steamdb.info/app/220/", {maxRetry: 2, maxRedirect: 2});
