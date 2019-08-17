@@ -91,7 +91,7 @@ const request = module.exports = (href, payload, option = {}) => {
           
           if (url.method === 'POST' && [301, 302, 303].includes(res.statusCode)) {
               option.method = 'GET';
-              (if option.headers) {
+              if (option.headers) {
                 delete option.headers['content-length']; 
                 delete option.headers['content-type'];
               }
