@@ -228,7 +228,9 @@ module.exports.all = async (listURL, destDir, option, callbackProgress = ()=>{} 
             callbackProgress(percent, speed, destFile);
       })); 
     }
-    catch(e) {}
+    catch(err) {
+      throw err;
+    }
     count = count + 1;
   }
   
