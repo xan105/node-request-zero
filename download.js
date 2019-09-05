@@ -184,8 +184,8 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
              option.maxRetry = options.maxRetry - 1;
              if (option.maxRetry < 0) {
                  reject({
-                    code: err.statusCode, 
-                    message: err.statusMessage
+                    code: err.code, 
+                    message: err.message
                  });
                  fs.unlink(destPath, () => {
                     req.abort();
