@@ -125,14 +125,29 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                   
                         file.end();
                         if (res.complete) {
-                            callbackProgress(100, 0, destFile);
-                            resolve({
-                                code: res.statusCode,
-                                message: res.statusMessage,
-                                url: url.href,
-                                headers: res.headers,
-                                path: destPath
-                            });
+                              fs.stat(destPath, (err, stats) => {
+                                  if (!err && stats.size === +res.headers['content-length']) 
+                                  {
+                                    callbackProgress(100, 0, destFile);
+                                    resolve({
+                                        code: res.statusCode,
+                                        message: res.statusMessage,
+                                        url: url.href,
+                                        headers: res.headers,
+                                        path: destPath
+                                    });
+                                  } 
+                                  else 
+                                  {
+                                    option.maxRetry = options.maxRetry - 1;
+                                    if (option.maxRetry < 0) {
+                                        reject( {code: 'ESIZEMISMATCH', message: 'Unexpected file size', url: url.href} );
+                                        fs.unlink(destPath, () => {});
+                                    } else {
+                                        return resolve(download(href, destDir, option, callbackProgress));
+                                    }  
+                                  }
+                              });
                         } else {
                             option.maxRetry = options.maxRetry - 1;
                             if (option.maxRetry < 0) {
