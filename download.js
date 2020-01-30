@@ -238,6 +238,8 @@ module.exports.all = async (listURL, destDir, option, callbackProgress = ()=>{} 
 		callbackProgress = option
 		option = null;
 	}
+	
+	if (!option) option = {};
   
   let count = 0; 
   let slice_size = (100/listURL.length);
