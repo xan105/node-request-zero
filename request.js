@@ -17,6 +17,7 @@ const request = module.exports = (href, payload, option = {}) => {
     timeout : option.timeout || 3000,
     maxRedirect: (option.maxRedirect || option.maxRedirect == 0) ? option.maxRedirect : 3,
     maxRetry: (option.maxRetry || option.maxRetry == 0) ? option.maxRetry : 0,
+    retryDelay: option.retryDelay || 200,
     headers : {
       'User-Agent': 'Chrome/'
     }
@@ -65,7 +66,9 @@ const request = module.exports = (href, payload, option = {}) => {
                   if (option.maxRetry < 0) {
                     reject( {code: 'EINTERRUPTED', message: 'The connection was terminated while the message was still being sent', url: url.href} );
                   } else {
-                    return resolve(request(href, option));
+                    setTimeout(function(){
+                      return resolve(request(href, option));
+                    }, options.retryDelay);
                   } 
               }
           }).on('error', (err) => {
@@ -79,7 +82,9 @@ const request = module.exports = (href, payload, option = {}) => {
                 });
                 req.abort();    
               } else {
-                return resolve(request(href, option));
+                  setTimeout(function(){
+                      return resolve(request(href, option));
+                  }, options.retryDelay);
               }    
           });
 
@@ -116,7 +121,9 @@ const request = module.exports = (href, payload, option = {}) => {
              });
              req.abort();    
          } else {
-             return resolve(request(href, option));
+            setTimeout(function(){
+               return resolve(request(href, option));
+            }, options.retryDelay);
          } 
 
       }
@@ -133,7 +140,9 @@ const request = module.exports = (href, payload, option = {}) => {
                });
                req.abort();    
             } else {
-               return resolve(request(href, option));
+               setTimeout(function(){
+                  return resolve(request(href, option));
+               }, options.retryDelay);
             }   
     });
 

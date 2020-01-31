@@ -19,6 +19,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
     timeout : option.timeout || 3000,
     maxRedirect: (option.maxRedirect || option.maxRedirect == 0) ? option.maxRedirect : 3,
     maxRetry: (option.maxRetry || option.maxRetry == 0) ? option.maxRetry : 3,
+    retryDelay: option.retryDelay || 500,
     headers : {
       'User-Agent': 'Chrome/'
     },
@@ -144,7 +145,9 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                                         reject( {code: 'ESIZEMISMATCH', message: 'Unexpected file size', url: url.href} );
                                         fs.unlink(destPath, () => {});
                                     } else {
-                                        return resolve(download(href, destDir, option, callbackProgress));
+                                        setTimeout(function(){
+                                           return resolve(download(href, destDir, option, callbackProgress));
+                                        }, options.retryDelay);
                                     }  
                                   }
                               });
@@ -154,7 +157,9 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                                 reject( {code: 'EINTERRUPTED', message: 'The connection was terminated while the message was still being sent', url: url.href} );
                                 fs.unlink(destPath, () => {});
                             } else {
-                                return resolve(download(href, destDir, option, callbackProgress));
+                                setTimeout(function(){
+                                   return resolve(download(href, destDir, option, callbackProgress));
+                                }, options.retryDelay);
                             }                         
                         }
     
@@ -173,7 +178,9 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                               req.abort();
                           });    
                         }else {
-                          return resolve(download(href, destDir, option, callbackProgress));
+                           setTimeout(function(){
+                              return resolve(download(href, destDir, option, callbackProgress));
+                           }, options.retryDelay);
                         } 
                         
                   });
@@ -204,7 +211,9 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                     req.abort();
                  });    
              } else {
-                 return resolve(download(href, destDir, option, callbackProgress));
+                 setTimeout(function(){
+                    return resolve(download(href, destDir, option, callbackProgress));
+                 }, options.retryDelay);
              } 
               
         }
@@ -223,7 +232,9 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                     req.abort();
                  });    
              } else {
-                 return resolve(download(href, destDir, option, callbackProgress));
+                 setTimeout(function(){
+                    return resolve(download(href, destDir, option, callbackProgress));
+                 }, options.retryDelay);
              }        
       });
 
@@ -245,9 +256,10 @@ module.exports.all = async (listURL, destDir, option, callbackProgress = ()=>{} 
   let slice_size = (100/listURL.length);
   let list = [];
 
-  let _option = JSON.parse(JSON.stringify(option));
-
   for (let file in listURL) { 
+  
+    let _option = JSON.parse(JSON.stringify(option));
+  
     let progressPercent = Math.floor((count/listURL.length)*100);
     try {
 
