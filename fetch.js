@@ -1,6 +1,12 @@
 /*
-  Like request.js but with the fetch API.
-  This is meant to be used in a Browser env.
+MIT License
+Copyright (c) 2019 Anthony Beaumont
+https://github.com/xan105/node-request-zero
+*/
+
+/*
+Like request.js but with the fetch API.
+This is meant to be used in a Browser env.
 */
 
 "use strict";

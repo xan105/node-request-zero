@@ -1,3 +1,9 @@
+/*
+MIT License
+Copyright (c) 2019 Anthony Beaumont
+https://github.com/xan105/node-request-zero
+*/
+
 "use strict";
 
 const http = require('http');
