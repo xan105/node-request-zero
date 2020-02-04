@@ -64,7 +64,12 @@ const request = module.exports = (href, payload, option = {}) => {
               }else{
                   option.maxRetry = options.maxRetry - 1;
                   if (option.maxRetry < 0) {
-                    reject( {code: 'EINTERRUPTED', message: 'The connection was terminated while the message was still being sent', url: url.href} );
+                    reject({
+                      code: 'EINTERRUPTED', 
+                      message: 'The connection was terminated while the message was still being sent', 
+                      url: url.href,
+                      headers: res.headers
+                    });
                   } else {
                     setTimeout(function(){
                       return resolve(request(href, option));
@@ -93,7 +98,12 @@ const request = module.exports = (href, payload, option = {}) => {
         
         option.maxRedirect = options.maxRedirect - 1;
         if (options.maxRedirect < 0) {
-          return reject( {code:"EREDIRECTMAX", message:"Maximum redirection reached"} );
+          return reject({
+                    code:"EREDIRECTMAX", 
+                    message:"Maximum redirection reached", 
+                    url: url.href,
+                    headers: res.headers
+                  });
         } else {
           let redirect = (urlParser.parse(res.headers.location).hostname) ? res.headers.location : `${url.protocol}//${url.hostname}/${res.headers.location}`;
           

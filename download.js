@@ -142,7 +142,12 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                                   {
                                     option.maxRetry = options.maxRetry - 1;
                                     if (option.maxRetry < 0) {
-                                        reject( {code: 'ESIZEMISMATCH', message: 'Unexpected file size', url: url.href} );
+                                        reject({
+                                          code: 'ESIZEMISMATCH', 
+                                          message: 'Unexpected file size', 
+                                          url: url.href,
+                                          headers: res.headers
+                                          });
                                         fs.unlink(destPath, () => {});
                                     } else {
                                         setTimeout(function(){
@@ -154,7 +159,12 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                         } else {
                             option.maxRetry = options.maxRetry - 1;
                             if (option.maxRetry < 0) {
-                                reject( {code: 'EINTERRUPTED', message: 'The connection was terminated while the message was still being sent', url: url.href} );
+                                reject({
+                                  code: 'EINTERRUPTED',
+                                  message: 'The connection was terminated while the message was still being sent', 
+                                  url: url.href,
+                                  headers: res.headers
+                                });
                                 fs.unlink(destPath, () => {});
                             } else {
                                 setTimeout(function(){
@@ -191,7 +201,12 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
 
               option.maxRedirect = options.maxRedirect - 1;
               if (option.maxRedirect < 0) {
-                return reject( {code:"EREDIRECTMAX", message:"Maximum redirection reached"} );
+                return reject({
+                  code:"EREDIRECTMAX", 
+                  message:"Maximum redirection reached",
+                  url: url.href,
+                  headers: res.headers
+                });
               } else {
                 let redirect = (urlParser.parse(res.headers.location).hostname) ? res.headers.location : `${url.protocol}//${url.hostname}/${res.headers.location}`;
                 return resolve(download(redirect, destDir, option, callbackProgress));
