@@ -2,7 +2,7 @@ Request-zero is based around the Node.js's HTTP(S) API interfaces.<br />
 It retries on error, follows redirects and provides progress when downloading (pipe to stream) out of the box.<br />
 It uses promises and has no dependencies.
 
-_There is also a version that uses the Web Fetch API for the Browser (See below for more details)._
+_There is also a version that uses the Web Fetch API for the Browser ([See below for more details](#Browser))._
 
 Common use cases:
 =================
@@ -109,6 +109,7 @@ There are multiple points of failure, the API tries to return an error object wi
     {
       code: ..., // HTTP Response code
       message: ..., //HTTP Response message
+      url: ..., // URL
       headers: ... //HTTP Response headers
     }
      ```
@@ -120,6 +121,7 @@ There are multiple points of failure, the API tries to return an error object wi
     {
       code: ..., // HTTP Response code
       message: ..., //HTTP Response message
+      url: ..., // URL
       headers: ..., //HTTP Response headers
       body: ... // HTTP Response body on success
     }
@@ -161,18 +163,19 @@ There are multiple points of failure, the API tries to return an error object wi
 
 Browser
 =======
-There is a version using the Web (Browser) Fetch API in `fetch.js`.
-This is meant to be used in a Browser env.
+There is a version using the Web (Browser) Fetch API in `fetch.js`.<br/>
+This is meant to be used in a Browser env.<br/>
 _Not all features are available._
 
 + `request(url string, [option] object)`<br/>
     Make a request by default 'GET' use option {method: GET HEAD etc} to change it.<br/>
 
 Has 2 more options than the Node version :
+
 |option|default|description|
 -------|-------|------------
-|mode|'cors'| The mode you want to use for the request, e.g., cors, no-cors, or same-origin |
-|cache| 'no-store' | The cache mode you want to use for the request, e.g., default, no-store, reload, no-cache, force-cache, only-if-cached. |
+|mode|'cors'| The mode you want to use for the request.<br/>eg: cors, no-cors, or same-origin |
+|cache| 'no-store' | The cache mode you want to use for the request.<br/>eg: default, no-store, reload, no-cache, force-cache, only-if-cached. |
 
 ```js
 //Example 
