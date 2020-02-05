@@ -42,7 +42,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
     if (!destDir || typeof(destDir) !== 'string') return reject( {code:"ERR_INVALID_ARG_TYPE", message:`destDir is ${typeof(destDir)}`} )
   
     let url = urlParser.parse(href);
-    if(!url.hostname || !url.protocol) return reject( {code:"BAD URL", message:`URL is malformed`} );
+    if(!url.hostname || !url.protocol) return reject( {code:"BAD URL", message:`URL is malformed`, url: href} );
     url.headers = options.headers;
     
     let destPath = '';

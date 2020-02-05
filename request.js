@@ -38,7 +38,7 @@ const request = module.exports = (href, payload, option = {}) => {
     if (!href) return reject( {code:"BAD URL", message:`URL is ${typeof(url)}`} );
   
     let url = urlParser.parse(href);
-    if(!url.hostname || !url.protocol) return reject( {code:"BAD URL", message:`URL is malformed`} );
+    if(!url.hostname || !url.protocol) return reject( {code:"BAD URL", message:`URL is malformed, url: href`} );
     url.headers = options.headers;
     url.method = options.method.toUpperCase();
   

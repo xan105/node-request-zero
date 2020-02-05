@@ -30,7 +30,7 @@ export default function request(href,option = {}){
     try{
       url = new URL(href);
     }catch(err){
-      return reject( {code:"BAD URL", message: err} );
+      return reject( {code:"BAD URL", message: err, url: href} );
     }
     
     if (typeof window !== "undefined" && typeof window.document !== "undefined" && window.fetch) { //Browser ? and has fetch API ?
