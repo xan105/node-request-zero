@@ -180,7 +180,7 @@ Has 2 more options than the Node version :
 ```js
 //Example 
 
-import request from '../node-request-zero/fetch.js';
+import request from 'request-zero';
 
 request("some/url").then((res) => {
     console.log(res.body);

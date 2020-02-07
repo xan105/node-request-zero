@@ -3,6 +3,7 @@
   "description": "Simple dependency-free promise based HTTP request client with file download progress.",
   "version": "0.2.5",
   "main": "request.js",
+  "browser": "fetch.js"
   "author": "Anthony Beaumont",
   "license": "MIT",
   "repository": {
