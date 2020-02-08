@@ -13,7 +13,7 @@ const download = require('./download.js');
 
 const request = module.exports = (href, payload, option = {}) => {
   
-  if (typeof(payload) === 'object' && typeof(payload) !== 'string' && !Buffer.isBuffer(payload)) {
+  if (payload && typeof(payload) === 'object' && typeof(payload) !== 'string' && !Buffer.isBuffer(payload)) {
 		option = payload
 		payload = null;
 	}
@@ -78,7 +78,7 @@ const request = module.exports = (href, payload, option = {}) => {
                     });
                   } else {
                     setTimeout(function(){
-                      return resolve(request(href, option));
+                      return resolve(request(href, payload, option));
                     }, options.retryDelay);
                   } 
               }
@@ -94,7 +94,7 @@ const request = module.exports = (href, payload, option = {}) => {
                 req.abort();    
               } else {
                   setTimeout(function(){
-                      return resolve(request(href, option));
+                      return resolve(request(href, payload, option));
                   }, options.retryDelay);
               }    
           });
@@ -119,9 +119,11 @@ const request = module.exports = (href, payload, option = {}) => {
                 delete option.headers['content-length']; 
                 delete option.headers['content-type'];
               }
+              if (payload) payload = null;
+              
           }
 
-          return resolve(request(redirect, option));
+          return resolve(request(redirect, payload, option));
         }
         
       }
@@ -138,7 +140,7 @@ const request = module.exports = (href, payload, option = {}) => {
              req.abort();    
          } else {
             setTimeout(function(){
-               return resolve(request(href, option));
+               return resolve(request(href, payload, option));
             }, options.retryDelay);
          } 
 
@@ -157,7 +159,7 @@ const request = module.exports = (href, payload, option = {}) => {
                req.abort();    
             } else {
                setTimeout(function(){
-                  return resolve(request(href, option));
+                  return resolve(request(href, payload, option));
                }, options.retryDelay);
             }   
     });
