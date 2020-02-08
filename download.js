@@ -239,7 +239,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
               
         }
         
-      }).setTimeout(3000, () => {
+      }).setTimeout(options.timeout, () => {
           req.abort();
       }).on('error', (err) => {
              option.maxRetry = options.maxRetry - 1;
