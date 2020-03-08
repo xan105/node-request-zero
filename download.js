@@ -130,7 +130,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                         
                   }).on('end', () => {
                   
-                        file.end();
+                      file.on('close', () => {
                         if (res.complete) {
                               fs.stat(destPath, (err, stats) => {
                                   if (!err && stats.size === +res.headers['content-length']) 
@@ -178,6 +178,8 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                                 }, options.retryDelay);
                             }                         
                         }
+                      });
+                      file.end();
     
                   }).on('error', (err) => {
                   
