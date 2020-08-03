@@ -97,7 +97,7 @@ API
 ===
 
 All *request.**x*** methods are short-hand of a wrapper to the Node.js's HTTP(S) API interfaces *http(s).request()*<br/>
-All *request.download.**x*** methods are short-hand of a wrapper to the Node.js's HTTP(S) API interfaces *http(s).get()* which pipes the data to a *WriteStream*.<br/>
+All *request.download.**x*** methods are short-hand of a wrapper to the Node.js's HTTP(S) API interfaces *http(s).get()* (except for *request.download.**torrent*** obviously) which pipes the data to a *WriteStream*.<br/>
 
 There are multiple points of failure, the API tries to return an error object with the same properties as much as possible.
 ```js
