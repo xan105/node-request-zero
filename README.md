@@ -4,6 +4,15 @@ It uses promises and has no dependencies.
 
 _There is also a version that uses the Web Fetch API for the Browser ([See below for more details](#Browser))._
 
+### Optional packages
+
+The following optional package will add functions to download torrent and get xml ([See below for more details](#API))
+
+ + [webtorrent](https://www.npmjs.com/package/webtorrent)<br />
+ `npm i webtorrent`
+ + [xml2js](https://www.npmjs.com/package/xml2js)<br /> 
+ `npm i xml2js`
+
 Common use cases:
 =================
 
@@ -45,6 +54,9 @@ const request = require('request-zero');
                                  "http://ipv4.download.thinkbroadband.com/20MB.zip",
                                  "http://ipv4.download.thinkbroadband.com/50MB.zip"],
                                  "D:\\Downloads", printProgress);
+                                 
+    //Download a torrent
+    request.download.torrent("https://webtorrent.io/torrents/sintel.torrent","D:\\Downloads");
     
     //Upload a single file multipart/form-data
     let res = await request.upload("http://127.0.0.1/upload/test/", 
@@ -73,7 +85,7 @@ All methods accept an optional object which you can set with any of the followin
 
 |option|default|description|
 -------|-------|------------
-|timeout|3000 ms | Time before aborting request|
+|timeout|3000 ms (request/download)<br/>10000 ms (torrent) | Time before aborting request|
 |maxRedirect| 3 | How many redirections to follow before aborting.<br/>Use 0 to not follow redirects |
 |maxRetry| 0 (request)<br/>3 (download) | How many retries on error before aborting.<br/>Use 0 to not retry at all |
 |retryDelay| 200 ms (request)<br/>500 ms (download) | How long to wait before a retry.<br/>Use 0 to instantly retry |
@@ -100,6 +112,10 @@ There are multiple points of failure, the API tries to return an error object wi
 + `request.getJson(url **string**, [option] object)`<br/>
     Make a GET request to url with 'Accept' header set to 'application/json, application/json;indent=2' if unset in option and parse the result.<br/>
     Returns the JSON.parsed data.
++ `request.getXml(url **string**, [option] object)`<br/>
+    Make a GET request to url with 'Accept' header set to 'application/xml' if unset in option and parse the result.<br/>
+    Returns the parsed xml to JavaScript object.<br/> 
+    ⚠️ Requires the optional module: xml2js.<br/>
 + `request.head(url string, [option] object)`<br/>
     Make a HEAD request to url. Returns response headers no matter the HTTP response code.<br/> 
     NB: Doesn't follow redirection by design. So maxRedirect is useless here.<br/> 
@@ -141,6 +157,16 @@ There are multiple points of failure, the API tries to return an error object wi
     Progress gives you the following stats: percent, speed, file.<br/>
     Returns as above with an additional 'path' property set to the location the file was written in.<br/>
     This is useful for promise chaining to example unzip an archive, etc.
++ `request.download.torrent(url string||path string||magnet string, destDir string, [option] object, [callbackProgress] function)`<br/>
+    Download files from a torrent url, torrent file, torrent magnet to destDir (if the dir doesn't exist it will be created for you).<br/>
+    You can exclude torrent files with option {exclusion: [...]}.<br/>
+    If there is no peers for by default 10sec download will fail with ETIMEOUT error.<br/>
+    You can change this value with option {timeout: 10000} (ms).<br/>
+    Other options are ignored.<br/>
+    Progress gives you the following stats: percent, speed.<br/>
+    Torrent can be resumed.<br/>
+    Returns an object with torrent download location, torrent name, and for every files of the torrent its name, relative path and path.<br/>     
+    ⚠️ Requires the optional module: webtorrent.<br/>
 + `request.download.all(listURL array, destDir string|array, [option] object, [callbackProgress] function)`<br/>
     Download files in the list array one-by-one to destDir (if the dir doesn't exist it will be created for you).<br/>
     If destDir is an array, files[i] will be written to destDir[i] in a 1:1 relation.<br/>

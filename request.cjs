@@ -1,7 +1,25 @@
 /*
 MIT License
-Copyright (c) 2019 Anthony Beaumont
-https://github.com/xan105/node-request-zero
+
+Copyright (c) 2019-2020 Anthony Beaumont
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 */
 
 "use strict";
@@ -9,7 +27,15 @@ https://github.com/xan105/node-request-zero
 const http = require('http');
 const https = require('https');
 const urlParser = require('url');
-const download = require('./download.js');
+const util = require('util');// xml2js promisify
+const download = require('./download.cjs');
+
+let xml2js;
+try 
+{
+  xml2js = require('xml2js');
+  if (!xml2js) xml2js = null;
+} catch{ /*Do nothing*/ }
 
 const request = module.exports = (href, payload, option = {}) => {
   
@@ -199,46 +225,51 @@ module.exports.getJson = async (url, option = {} ) => {
   if (!option.headers['Accept']) option.headers['Accept'] = 'application/json, application/json;indent=2';
   option.method = "GET";
 
-  try {
-     let json = (await request(url, option)).body;
-     return JSON.parse(json);
-  }catch(err){
-     throw err;
-  }
+  const { body : data } = await request(url, option);
+  const json = JSON.parse(data);
+  return json;
+
+}
+
+async function getXml (url, option = {} ) {
+
+  if (!option.headers) option.headers = {};
+  if (!option.headers['Accept']) option.headers['Accept'] = 'application/xml';
+  option.method = "GET";
+
+  const { body : data } = await request(url, option);
+  const xml = await util.promisify(xml2js.parseString)(data,{explicitArray: false, explicitRoot: false, ignoreAttrs: true, emptyTag: null});
+  return xml;
 
 }
 
 module.exports.upload = async (url, content, option = {} ) => {
-  
-  try {
 
-    if(!content) throw {code: "ERR_INVALID_ARG_TYPE", message: `content is ${typeof(content)}`};
+  if(!content) throw {code: "ERR_INVALID_ARG_TYPE", message: `content is ${typeof(content)}`};
 
-    const crlf = "\r\n";
-    let headers = `Content-Disposition: form-data; name="${option.fieldname || 'file'}"; filename="${option.filename || Date.now()}"` + crlf;
-    let boundary = `--${Math.random().toString(16)}`;
-    let delimeter = {
-       start: `${crlf}--${boundary}`,
-       end: `${crlf}--${boundary}--`
-    }
-        
-    let payload = Buffer.concat([
-        Buffer.from(delimeter.start + crlf + headers + crlf),
-        Buffer.from(content),
-        Buffer.from(delimeter.end)]
-    );
-    
-    if (!option.headers) option.headers = {};
-    option.headers['Content-Type'] = "multipart/form-data; boundary=" + boundary;
-    option.headers['Content-Length'] = payload.length;
-    option.method = "POST";
-
-    let result = await request(url, payload, option);
-    return result;
-  
-  }catch(err){
-    throw err;
+  const crlf = "\r\n";
+  let headers = `Content-Disposition: form-data; name="${option.fieldname || 'file'}"; filename="${option.filename || Date.now()}"` + crlf;
+  let boundary = `--${Math.random().toString(16)}`;
+  let delimeter = {
+     start: `${crlf}--${boundary}`,
+     end: `${crlf}--${boundary}--`
   }
+        
+  let payload = Buffer.concat([
+      Buffer.from(delimeter.start + crlf + headers + crlf),
+      Buffer.from(content),
+      Buffer.from(delimeter.end)]
+  );
+    
+  if (!option.headers) option.headers = {};
+  option.headers['Content-Type'] = "multipart/form-data; boundary=" + boundary;
+  option.headers['Content-Length'] = payload.length;
+  option.method = "POST";
+
+  let result = await request(url, payload, option);
+  return result;
 }
+
+if (xml2js) module.exports.getXml = getXml;
 
 module.exports.download = download;
