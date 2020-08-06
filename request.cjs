@@ -35,7 +35,7 @@ try
 {
   xml2js = require('xml2js');
   if (!xml2js) xml2js = null;
-} catch{ /*Do nothing*/ }
+} catch{ xml2js = null }
 
 const request = module.exports = (href, payload, option = {}) => {
   
@@ -61,10 +61,13 @@ const request = module.exports = (href, payload, option = {}) => {
 
   return new Promise((resolve, reject) => {
   
-    if (!href) return reject( {code:"BAD URL", message:`URL is ${typeof(url)}`} );
+    if (typeof href !== "string" && !Array.isArray(href)) return reject( {code:"ERR_INVALID_ARG_TYPE", message:`URL is not a string. Received ${typeof(href)}`} );
+    if(Array.isArray(href) && !href.every(url => typeof url === "string")) return reject( {code:"UNEXPECTED_URL_ARRAY", message:"URL as an array is only used internally and should be made only of strings !"} );
   
-    let url = urlParser.parse(href);
-    if(!url.hostname || !url.protocol) return reject( {code:"BAD URL", message:`URL is malformed, url: href`} );
+    if (!Array.isArray(href) && typeof href === "string") href = [href];
+    let url = urlParser.parse(href[href.length-1]);
+    
+    if(!url.hostname || !url.protocol) return reject( {code:"BAD_URL", message:`URL is malformed. Received: "${href}"`} );
     url.headers = options.headers;
     url.method = options.method.toUpperCase();
   
@@ -90,6 +93,7 @@ const request = module.exports = (href, payload, option = {}) => {
                     code: res.statusCode,
                     message: res.statusMessage,
                     url: url.href,
+                    trace: href,
                     headers: res.headers,
                     body: data.join('')
                 });
@@ -100,6 +104,7 @@ const request = module.exports = (href, payload, option = {}) => {
                       code: 'EINTERRUPTED', 
                       message: 'The connection was terminated while the message was still being sent', 
                       url: url.href,
+                      trace: href,
                       headers: res.headers
                     });
                   } else {
@@ -115,6 +120,7 @@ const request = module.exports = (href, payload, option = {}) => {
                   code: err.code, 
                   message: err.message,
                   url: url.href,
+                  trace: href,
                   headers: res.headers
                 });
                 req.abort();    
@@ -134,10 +140,13 @@ const request = module.exports = (href, payload, option = {}) => {
                     code:"EREDIRECTMAX", 
                     message:"Maximum redirection reached", 
                     url: url.href,
+                    trace: href,
                     headers: res.headers
                   });
         } else {
+
           let redirect = (urlParser.parse(res.headers.location).hostname) ? res.headers.location : `${url.protocol}//${url.hostname}/${res.headers.location}`;
+          href.push(redirect);
           
           if (url.method === 'POST' && [301, 302, 303].includes(res.statusCode)) {
               option.method = 'GET';
@@ -145,11 +154,11 @@ const request = module.exports = (href, payload, option = {}) => {
                 delete option.headers['content-length']; 
                 delete option.headers['content-type'];
               }
-              if (payload) payload = null;
-              
+              if (payload) payload = null;   
           }
-
-          return resolve(request(redirect, payload, option));
+          
+          return resolve(request(href, payload, option));
+          
         }
         
       }
@@ -161,6 +170,7 @@ const request = module.exports = (href, payload, option = {}) => {
               code: res.statusCode, 
               message: res.statusMessage,
               url: url.href,
+              trace: href,
               headers: res.headers
              });
              req.abort();    
@@ -181,6 +191,7 @@ const request = module.exports = (href, payload, option = {}) => {
                 code: err.code, 
                 message: err.message,
                 url: url.href,
+                trace: href,
                });
                req.abort();    
             } else {

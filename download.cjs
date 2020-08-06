@@ -48,7 +48,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
     headers : {
       'User-Agent': 'Chrome/'
     },
-    filename: option.filename
+    filename: option.filename || null
   };
   
   if (option.headers) {
@@ -56,12 +56,16 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
   }
 
   return new Promise((resolve, reject) => {
-  
-    if (!href) return reject( {code:"BAD URL", message:`URL is ${typeof(url)}`} );
+
+    if (typeof href !== "string" && !Array.isArray(href)) return reject( {code:"ERR_INVALID_ARG_TYPE", message:`URL is not a string. Received ${typeof(href)}`} );
+    if(Array.isArray(href) && !href.every(url => typeof url === "string")) return reject( {code:"UNEXPECTED_URL_ARRAY", message:"URL as an array is only used internally and should be made only of strings !"} );
+    
     if (!destDir || typeof(destDir) !== 'string') return reject( {code:"ERR_INVALID_ARG_TYPE", message:`destDir is ${typeof(destDir)}`} )
   
-    let url = urlParser.parse(href);
-    if(!url.hostname || !url.protocol) return reject( {code:"BAD URL", message:`URL is malformed`, url: href} );
+    if (!Array.isArray(href) && typeof href === "string") href = [href];
+    let url = urlParser.parse(href[href.length-1]);
+    
+    if(!url.hostname || !url.protocol) return reject( {code:"BAD_URL", message:`URL is malformed. Received: "${href}"`} );
     url.headers = options.headers;
     
     let destPath = '';
@@ -102,7 +106,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
         
           fs.mkdir(destDir, { recursive: true }, (err) => {
              if (err) { 
-               reject( {code: err.code, message: err.message, url: url.href} );
+               reject( {code: err.code, message: err.message, url: url.href, trace: href} );
                req.abort(); 
              }
              else 
@@ -121,7 +125,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                   let file = fs.createWriteStream(destPath);
 
                   file.on('error', (err) => {
-                    reject( {code: err.code, message: err.message, url: url.href} );
+                    reject( {code: err.code, message: err.message, url: url.href, trace: href} );
                     file.end();
                     fs.unlink(destPath, () => {
                        req.abort();
@@ -159,6 +163,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                                         code: res.statusCode,
                                         message: res.statusMessage,
                                         url: url.href,
+                                        trace: href,
                                         headers: res.headers,
                                         path: destPath
                                     });
@@ -171,6 +176,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                                           code: 'ESIZEMISMATCH', 
                                           message: 'Unexpected file size', 
                                           url: url.href,
+                                          trace: href,
                                           headers: res.headers
                                           });
                                         fs.unlink(destPath, () => {});
@@ -188,6 +194,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                                   code: 'EINTERRUPTED',
                                   message: 'The connection was terminated while the message was still being sent', 
                                   url: url.href,
+                                  trace: href,
                                   headers: res.headers
                                 });
                                 fs.unlink(destPath, () => {});
@@ -209,6 +216,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                               code: err.code, 
                               message: err.message,
                               url: url.href,
+                              trace: href,
                               headers: res.headers
                           });
                           fs.unlink(destPath, () => {
@@ -232,11 +240,13 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                   code:"EREDIRECTMAX", 
                   message:"Maximum redirection reached",
                   url: url.href,
+                  trace: href,
                   headers: res.headers
                 });
               } else {
                 let redirect = (urlParser.parse(res.headers.location).hostname) ? res.headers.location : `${url.protocol}//${url.hostname}/${res.headers.location}`;
-                return resolve(download(redirect, destDir, option, callbackProgress));
+                href.push(redirect);
+                return resolve(download(href, destDir, option, callbackProgress));
               }
               
         } else {
@@ -247,6 +257,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                     code: res.statusCode, 
                     message: res.statusMessage,
                     url: url.href,
+                    trace: href,
                     headers: res.headers
                  });
                  fs.unlink(destPath, () => {
@@ -268,7 +279,8 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                  reject({
                     code: err.code, 
                     message: err.message,
-                    url: url.href
+                    url: url.href,
+                    trace: href
                  });
                  fs.unlink(destPath, () => {
                     req.abort();

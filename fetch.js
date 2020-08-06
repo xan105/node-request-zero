@@ -42,11 +42,15 @@ export default function request(href,option = {}){
 
   return new Promise((resolve, reject) => {
   
+    if (typeof href !== "string" && !Array.isArray(href)) return reject( {code:"ERR_INVALID_ARG_TYPE", message:`URL is not a string. Received ${typeof(href)}`} );
+    if(Array.isArray(href) && !href.every(url => typeof url === "string")) return reject( {code:"UNEXPECTED_URL_ARRAY", message:"URL as an array is only used internally and should be made only of strings !"} );
+    
+    if (!Array.isArray(href) && typeof href === "string") href = [href];
     let url;
     try{
-      url = new URL(href);
+      url = new URL(href[href.length-1]);
     }catch(err){
-      return reject( {code:"BAD URL", message: err, url: href} );
+      return reject( {code:"BAD_URL", message:`URL is malformed. Received: "${href}"`} );
     }
     
     if (typeof window !== "undefined" && typeof window.document !== "undefined" && window.fetch) { //Browser ? and has fetch API ?
@@ -62,7 +66,8 @@ export default function request(href,option = {}){
                  reject({
                   code: "ETIMEOUT", 
                   message: "connect ETIMEDOUT",
-                  url: url.href
+                  url: url.href,
+                  trace: href
                  });
                  controller.abort();     
               } else {
@@ -95,6 +100,7 @@ export default function request(href,option = {}){
                             code: res.status,
                             message: res.statusText,
                             url: url.href,
+                            trace: href,
                             headers: parseHeaders(res.headers),
                             body: data
                         });
@@ -107,6 +113,7 @@ export default function request(href,option = {}){
                          code: 'EINTERRUPTED', 
                          message: 'The connection was terminated while the message was still being sent', 
                          url: url.href,
+                         trace: href,
                          headers: parseHeaders(res.headers)
                        });
                     } else {
@@ -124,6 +131,7 @@ export default function request(href,option = {}){
                             code:"EREDIRECTMAX", 
                             message:"Maximum redirection reached",
                             url: url.href,
+                            trace: href,
                             headers: parseHeaders(res.headers)
                           });
                 } else {
@@ -135,8 +143,9 @@ export default function request(href,option = {}){
                           delete option.headers['content-type'];
                         }
                     }
-
-                    return resolve(request(res.url, option)); 
+                    
+                    href.push(res.url);
+                    return resolve(request(href, option)); 
                   }
 
             } else {
@@ -147,6 +156,7 @@ export default function request(href,option = {}){
                     code: res.status, 
                     message: res.statusText,
                     url: url.href,
+                    trace: href,
                     headers: parseHeaders(res.headers)
                    });
                    controller.abort();    
@@ -167,7 +177,8 @@ export default function request(href,option = {}){
                  reject({
                   code: err.code, 
                   message: err.message,
-                  url: url.href
+                  url: url.href,
+                  trace: href
                  });
                  controller.abort();     
               } else {
@@ -178,7 +189,7 @@ export default function request(href,option = {}){
        });
    
     } else {
-       return reject( {code:"Error", message: "Web (Browser) Fetch API is not available"} );
+       return reject( {code:"ENOSUPPORT", message: "Web (Browser) Fetch API is not available !"} );
     }
     
   });
@@ -186,8 +197,6 @@ export default function request(href,option = {}){
 
 function parseHeaders(headers){
   let response = {};
-  
   headers.forEach((value, name) => { response[name] = value });
-  
   return response;
 }

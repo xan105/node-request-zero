@@ -91,13 +91,13 @@ All methods accept an optional object which you can set with any of the followin
 |retryDelay| 200 ms (request)<br/>500 ms (download) | How long to wait before a retry.<br/>Use 0 to instantly retry |
 |headers| {'User-Agent': 'Chrome/'} | Headers of your request
 
-There are more options but they are specific to certains methods, check the API section.
+There are more options and/or restrictions but they are specific to certains methods, check the API section.
 
 API
 ===
 
 All *request.**x*** methods are short-hand of a wrapper to the Node.js's HTTP(S) API interfaces *http(s).request()*<br/>
-All *request.download.**x*** methods are short-hand of a wrapper to the Node.js's HTTP(S) API interfaces *http(s).get()* (except for *request.download.**torrent*** obviously) which pipes the data to a *WriteStream*.<br/>
+All *request.download.**x*** methods are short-hand of a wrapper to the Node.js's HTTP(S) API interfaces *http(s).get()* which pipes the data to a *WriteStream* (except for *request.download.**torrent*** obviously which relies on webtorrent).<br/>
 
 There are multiple points of failure, the API tries to return an error object with the same properties as much as possible.
 ```js
@@ -105,6 +105,7 @@ There are multiple points of failure, the API tries to return an error object wi
  code : ..., // HTTP Response code | Node.js error code
  message: ..., // HTTP Response message | Node.js error message,
  url: ..., // URL
+ trace: [...], // Array of URL(s) used so far for the request (history). Useful for tracking redirections.
  headers: ... // HTTP Response headers when available and relevant
 }
 ```
@@ -118,7 +119,7 @@ There are multiple points of failure, the API tries to return an error object wi
     ⚠️ Requires the optional module: xml2js.<br/>
 + `request.head(url string, [option] object)`<br/>
     Make a HEAD request to url. Returns response headers no matter the HTTP response code.<br/> 
-    NB: Doesn't follow redirection by design. So maxRedirect is useless here.<br/> 
+    NB: Doesn't follow redirection by design. So maxRedirect is useless here and no trace array is returned.<br/> 
     If you need to follow the redirection you can use the headers['location'] from the response and make a new HEAD request.<br/>
     Returns an object:
     ```js
@@ -138,6 +139,7 @@ There are multiple points of failure, the API tries to return an error object wi
       code: ..., // HTTP Response code
       message: ..., //HTTP Response message
       url: ..., // URL
+      trace: [...], // URL history
       headers: ..., //HTTP Response headers
       body: ... // HTTP Response body on success
     }
@@ -182,6 +184,7 @@ There are multiple points of failure, the API tries to return an error object wi
       code: ..., // HTTP Response code
       message: ..., //HTTP Response message
       url: ..., // URL
+      trace: [...], // URL history
       headers: ..., //HTTP Response headers
       body: ... // HTTP Response body on success
    }
