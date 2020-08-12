@@ -119,6 +119,9 @@ function download (torrent, dest, option, callbackProgress = ()=>{}) {
                stats.time.previousElapsed = stats.time.elapsed;
           })
           .on('done', function () {
+          
+            if(timeout.timer) timeout.clear();
+          
             let result = {
               path: path.resolve(torrent.path),
               name: torrent.name,
