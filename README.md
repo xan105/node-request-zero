@@ -213,7 +213,7 @@ Has 2 more options than the Node version :
 ```js
 //Example 
 
-import request from 'request-zero';
+import request from 'https://unpkg.com/request-zero/fetch.js'
 
 request("some/url").then((res) => {
     console.log(res.body);
