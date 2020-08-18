@@ -123,7 +123,7 @@ const request = module.exports = (href, payload, option = {}) => {
                   trace: href,
                   headers: res.headers
                 });
-                req.abort();    
+                req.destroy();    
               } else {
                   setTimeout(function(){
                       return resolve(request(href, payload, option));
@@ -173,7 +173,7 @@ const request = module.exports = (href, payload, option = {}) => {
               trace: href,
               headers: res.headers
              });
-             req.abort();    
+             req.destroy();    
          } else {
             setTimeout(function(){
                return resolve(request(href, payload, option));
@@ -183,7 +183,7 @@ const request = module.exports = (href, payload, option = {}) => {
       }
       
     }).setTimeout(options.timeout, () => {
-            req.abort();
+            req.destroy();
     }).on('error', (err) =>  {
             option.maxRetry = options.maxRetry - 1;
             if (option.maxRetry < 0) {
@@ -193,7 +193,7 @@ const request = module.exports = (href, payload, option = {}) => {
                 url: url.href,
                 trace: href,
                });
-               req.abort();    
+               req.destroy();    
             } else {
                setTimeout(function(){
                   return resolve(request(href, payload, option));
@@ -204,7 +204,7 @@ const request = module.exports = (href, payload, option = {}) => {
     if (url.method === "POST") {  
         if (!payload) {
           reject( {code: "ERR_INVALID_ARG_TYPE", message: `payload is ${typeof(options.payload)}`} );
-          req.abort();
+          req.destroy();
         } else {
           req.write(payload); 
         }

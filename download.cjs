@@ -107,7 +107,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
           fs.mkdir(destDir, { recursive: true }, (err) => {
              if (err) { 
                reject( {code: err.code, message: err.message, url: url.href, trace: href} );
-               req.abort(); 
+               req.destroy(); 
              }
              else 
              {     
@@ -128,7 +128,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                     reject( {code: err.code, message: err.message, url: url.href, trace: href} );
                     file.end();
                     fs.unlink(destPath, () => {
-                       req.abort();
+                       req.destroy();
                     });
                   });
                   
@@ -220,7 +220,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                               headers: res.headers
                           });
                           fs.unlink(destPath, () => {
-                              req.abort();
+                              req.destroy();
                           });    
                         }else {
                            setTimeout(function(){
@@ -261,7 +261,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                     headers: res.headers
                  });
                  fs.unlink(destPath, () => {
-                    req.abort();
+                    req.destroy();
                  });    
              } else {
                  setTimeout(function(){
@@ -272,7 +272,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
         }
         
       }).setTimeout(options.timeout, () => {
-          req.abort();
+          req.destroy();
       }).on('error', (err) => {
              option.maxRetry = options.maxRetry - 1;
              if (option.maxRetry < 0) {
@@ -283,7 +283,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                     trace: href
                  });
                  fs.unlink(destPath, () => {
-                    req.abort();
+                    req.destroy();
                  });    
              } else {
                  setTimeout(function(){
@@ -291,7 +291,8 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                  }, options.retryDelay);
              }        
       });
-
+      
+      req.end();
   });            
 }
 
