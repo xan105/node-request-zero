@@ -145,7 +145,7 @@ const request = module.exports = (href, payload, option = {}) => {
                   });
         } else {
 
-          let redirect = (urlParser.parse(res.headers.location).hostname) ? res.headers.location : `${url.protocol}//${url.hostname}/${res.headers.location}`;
+          let redirect = (urlParser.parse(res.headers.location).hostname) ? res.headers.location : new urlParser.URL(res.headers.location,`${url.protocol}//${url.hostname}`).href;
           href.push(redirect);
           
           if (url.method === 'POST' && [301, 302, 303].includes(res.statusCode)) {

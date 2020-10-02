@@ -244,7 +244,7 @@ const download = module.exports = (href, destDir, option, callbackProgress = ()=
                   headers: res.headers
                 });
               } else {
-                let redirect = (urlParser.parse(res.headers.location).hostname) ? res.headers.location : `${url.protocol}//${url.hostname}/${res.headers.location}`;
+                let redirect = (urlParser.parse(res.headers.location).hostname) ? res.headers.location : new urlParser.URL(res.headers.location,`${url.protocol}//${url.hostname}`).href;
                 href.push(redirect);
                 return resolve(download(href, destDir, option, callbackProgress));
               }
