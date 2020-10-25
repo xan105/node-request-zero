@@ -85,6 +85,7 @@ All methods accept an optional object which you can set with any of the followin
 
 |option|default|description|
 -------|-------|------------
+|encoding| utf8 (request) | response encoding |
 |timeout|3000 ms (request/download)<br/>10000 ms (torrent) | Time before aborting request|
 |maxRedirect| 3 | How many redirections to follow before aborting.<br/>Use 0 to not follow redirects |
 |maxRetry| 0 (request)<br/>3 (download) | How many retries on error before aborting.<br/>Use 0 to not retry at all |

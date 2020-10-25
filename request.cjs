@@ -46,6 +46,7 @@ const request = module.exports = (href, payload, option = {}) => {
   
   let options = {
     method: option.method || "GET",
+    encoding: option.encoding || "utf8",
     timeout : option.timeout || 3000,
     maxRedirect: (option.maxRedirect || option.maxRedirect == 0) ? option.maxRedirect : 3,
     maxRetry: (option.maxRetry || option.maxRetry == 0) ? option.maxRetry : 0,
@@ -73,7 +74,9 @@ const request = module.exports = (href, payload, option = {}) => {
   
     const lib = (url.protocol === "https:") ? https : http;
     let req = lib.request(url, (res) => {
-
+	  
+	  res.setEncoding(options.encoding);
+	  
       if(url.method === "HEAD") {
         resolve({
           code: res.statusCode,
