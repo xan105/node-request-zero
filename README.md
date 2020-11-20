@@ -157,6 +157,8 @@ There are multiple points of failure, the API tries to return an error object wi
 + `request.download(url string, destDir string, [option] object, [callbackProgress] function)`<br/>
     Download file from url to destDir (if the dir doesn't exist it will be created for you).<br/>
     You can force the filename with option {filename: ...}.<br/>
+    You can verify checksum of downloaded file by using optional option {hash: {algo: ..., sum: ...}}<br/>
+    Where algo is a node.js supported crypto algo. On error or mismatch it will trigger error/retries.<br/>
     Progress gives you the following stats: percent, speed, file.<br/>
     Returns as above with an additional 'path' property set to the location the file was written in.<br/>
     This is useful for promise chaining to example unzip an archive, etc.

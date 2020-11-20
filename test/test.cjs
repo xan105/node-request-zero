@@ -2,7 +2,7 @@
 
 "use strict";
 
-const request = require("../request.cjs");
+const request = require("../lib/request.cjs");
 
 (async()=>{
 
@@ -41,11 +41,10 @@ req = await request.get("http://127.0.0.1/uplay/ach/54",{maxRetry: 2});*/
 //simple download test
 //req = await request.download("http://psxdatacenter.com/sbifiles/Resident%20Evil%203%20-%20Nemesis%20(F)%20[SLES-02530]%20sbi.7z","download",{filename: "RE3 sbi.7z"}, printProgress);
 
-
 //download fron github ... redirection aws ... content disposition
 //req = await request.download("https://github.com/xan105/Achievement-Watcher/releases/download/1.1.0/Achievement.Watcher.Setup.exe","download",{filename: "supersetup.exe"}, printProgress);
 
-//big file download test
+//big file download test (user agent check)
 //req = await request.download("http://ipv4.download.thinkbroadband.com/1GB.zip","download",printProgress)
 
 //small file list download test
@@ -55,6 +54,8 @@ req = await request.get("http://127.0.0.1/uplay/ach/54",{maxRetry: 2});*/
                                   "http://ipv4.download.thinkbroadband.com/50MB.zip"],
                                   "download",printProgress)*/
 
+//checksum download test
+//req = await request.download("http://ipv4.download.thinkbroadband.com/10MB.zip","download",{hash: {algo: "md5", sum: "3aa55f03c298b83cd7708e90d289afbd"}}, printProgress);
 
 //torrent download test
 //request.download.torrent("https://webtorrent.io/torrents/sintel.torrent","download",printProgress);
@@ -65,12 +66,11 @@ req = await request.get("http://127.0.0.1/uplay/ach/54",{maxRetry: 2});*/
 
 //req = await request.get("https://steamdb.info/app/220/",{method:"POST"});
 
-//console.log(req);
-})().catch((err)=>{console.error(err)});
+console.log(req);
+})().catch(console.error);
 
 function printProgress(percent, speed, dest){
     process.stdout.clearLine();
     process.stdout.cursorTo(0);
     process.stdout.write(`${percent}% @ ${speed} kb/s [${dest}]`);
-    if (percent == 100) process.stdout.write("\r\n");
 }

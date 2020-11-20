@@ -1,12 +1,12 @@
-import request from "../esm.mjs";
+import request from "../lib/esm.mjs";
 
-// import { downloas } as request from "../esm.mjs";
+// import { downloas } as request from "../lib/esm.mjs";
 
 /*
-import { download } from "../esm.mjs";
+import { download } from "../lib/esm.mjs";
 const { torrent : request } = download;
 */
 
-//import * as request from "../esm.mjs";
+//import * as request from "../lib/esm.mjs";
 
 console.log(request);
