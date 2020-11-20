@@ -18,7 +18,8 @@
       "no-alert": "warn",
       "no-eval": "error",
       "require-await": "warn",
-      "strict": "error"
+      "strict": "error",
+      "no-mixed-spaces-and-tabs": "warn"
     },
     "overrides": [
       {

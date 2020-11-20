@@ -1,14 +1,14 @@
 {
   "name": "request-zero",
-  "version": "0.3.1",
+  "version": "0.3.2",
   "description": "Simple dependency-free promise based HTTP request client with file download progress.",
   "type": "module",
-  "main": "request.cjs",
+  "main": "./lib/request.cjs",
   "exports": {
-    "import": "./esm.mjs",
-    "require": "./request.cjs"
+    "import": "./lib/esm.mjs",
+    "require": "./lib/request.cjs"
   },
-  "browser": "fetch.js",
+  "browser": "./lib/fetch.js",
   "engines": {
     "node": ">=0.12"
   },
