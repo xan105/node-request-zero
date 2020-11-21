@@ -44,7 +44,7 @@
   },
   "homepage": "https://github.com/xan105/node-request-zero#readme",
   "peerDependencies": {
-    "webtorrent": "^0.107.17",
+    "webtorrent": "^0.108.6",
     "xml2js": "^0.4.23"
   },
   "peerDependenciesMeta": {
