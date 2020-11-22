@@ -215,7 +215,7 @@ Has 2 more options than the Node version :
 ```js
 //Example
 
-import request from "https://unpkg.com/request-zero/fetch.js";
+import request from "https://unpkg.com/request-zero/lib/fetch.js";
 
 request("some/url")
   .then((res) => {
