@@ -1,4 +1,4 @@
-Request-zero is based around the Node.js's HTTP(S) API interfaces.<br />
+This module is based around the Node.js's HTTP(S) API interfaces.<br />
 It retries on error, follows redirects and provides progress when downloading (pipe to stream) out of the box.<br />
 It uses promises and has no dependencies.
 
@@ -215,7 +215,7 @@ Has 2 more options than the Node version :
 ```js
 //Example
 
-import request from "https://unpkg.com/request-zero/lib/fetch.js";
+import request from "https://unpkg.com/@xan105/fs/lib/fetch.js";
 
 request("some/url")
   .then((res) => {

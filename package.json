@@ -1,6 +1,6 @@
 {
-  "name": "request-zero",
-  "version": "0.3.2",
+  "name": "@xan105/request",
+  "version": "0.3.3",
   "description": "Simple dependency-free promise based HTTP request client with file download progress.",
   "type": "module",
   "main": "./lib/request.cjs",
@@ -56,7 +56,7 @@
     }
   },
   "devDependencies": {
-    "eslint": "^7.6.0",
+    "eslint": "^7.23.0",
     "eslint-config-prettier": "^6.15.0",
     "prettier": "2.2.0",
     "webtorrent": "^0.108.6",
