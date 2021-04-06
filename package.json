@@ -37,12 +37,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/xan105/node-request-zero.git"
+    "url": "git+https://github.com/xan105/node-request.git"
   },
   "bugs": {
-    "url": "https://github.com/xan105/node-request-zero/issues"
+    "url": "https://github.com/xan105/node-request/issues"
   },
-  "homepage": "https://github.com/xan105/node-request-zero#readme",
+  "homepage": "https://github.com/xan105/node-request#readme",
   "peerDependencies": {
     "webtorrent": "^0.108.6",
     "xml2js": "^0.4.23"
